@@ -14,7 +14,8 @@ public class Analisis {
     ArrayList<String> impresion;
     ListaDoble<Token> tokens;
     final Token vacio = new Token("", 9, 0);
-    boolean bandera = true, banderaclase = false, banderaErroresSintacticos = false;
+    boolean bandera = true, banderaclase = false, banderaErroresSintacticos = false,
+            banderaErroresSemanticos = false;
     public ColorCeldas color = new ColorCeldas(4);
     ArrayList<TabladeSimbolos> tablasimbolos = new ArrayList<TabladeSimbolos>();
     ArrayList<String> expresion = new ArrayList<String>();
@@ -41,7 +42,7 @@ public class Analisis {
 
     public Analisis(String ruta) {//Recibe el nombre del archivo de texto
         analisaCodigo(ruta);
-        System.out.println("bandera: " + bandera);
+        //System.out.println("bandera: " + bandera);
         if (bandera) {
             impresion.add("No hay errores lexicos");
 
@@ -59,6 +60,9 @@ public class Analisis {
 
         if (!banderaErroresSintacticos) {
             impresion.add("No hay errores sintacticos!");
+        }
+        if(!banderaErroresSemanticos){
+            impresion.add("No hay errores semanticos");
         }
 
         for (int i = 0; i < tablasimbolos.size(); i++) {
@@ -80,6 +84,7 @@ public class Analisis {
             while (linea != null) {
                 linea = separaDelimitadores(linea);
                 tokenizer = new StringTokenizer(linea);
+                
                 while (tokenizer.hasMoreTokens()) {
                     token = tokenizer.nextToken();
                     analisisLexico(token);
@@ -249,9 +254,14 @@ public class Analisis {
                                     AppCompilador.enviarErrorSintactico(to.getLinea());
                                     banderaErroresSintacticos = true;
                                     impresion.add("Error sintactico en la linea " + to.getLinea() + " se esperaba una constante");
-
+                                    
                                 }
-
+                                if(Siguiente1Tipo == Token.CONSTANTE){
+                                    if(!coincideTipoConstante(Anterior2Valor, Siguiente1Valor)){
+                                        banderaErroresSemanticos = true;
+                                        impresion.add("Error semantico en la linea " + to.getLinea() + ", esta asignando un valor invalido");
+                                    }
+                                }
                             }
                         } else if (to.getValor().equals(";")) {
 
@@ -926,6 +936,17 @@ public class Analisis {
     public String jerarquias(int i, String aux) {
 
         return aux;
+    }
+
+    private boolean coincideTipoConstante(String valorAnterior, String Siguiente1Valor) {
+        boolean res = false;
+        switch(valorAnterior){
+            case "int":     res = EsNumeroEntero(Siguiente1Valor);  break;
+            case "char":    res = EsChar(Siguiente1Valor);          break;
+            case "boolean": res = EsBoolean(Siguiente1Valor);       break;
+            case "float":   res = Esfloat(Siguiente1Valor);         break;
+        }
+        return res;
     }
 
 }

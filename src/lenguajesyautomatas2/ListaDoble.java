@@ -36,7 +36,7 @@ public class ListaDoble<E>{
 	public void mostrar() {
 		NodoDoble <E>Aux=Inicio;
 		while(Aux !=null){
-			System.out.println(Aux);
+			//System.out.println(Aux);
 			Aux=Aux.siguiente;
 		}
 	}
