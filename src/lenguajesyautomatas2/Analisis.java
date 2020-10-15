@@ -114,7 +114,7 @@ public class Analisis {
             tipo = Token.OPERADOR_LOGICO;
         } else if (Arrays.asList("+", "-", "*", "/").contains(token)) {
             tipo = Token.OPERADOR_ARITMETICO;
-        } else if (Arrays.asList("True", "False").contains(token) || Pattern.matches("^[0-9]+$", token)
+        } else if (Arrays.asList("true", "false").contains(token) || Pattern.matches("^[0-9]+$", token)
                 || Pattern.matches("[0-9]+.[0-9]+", token) || Pattern.matches("'[a-zA-Z]'", token) || Pattern.matches("-[0-9]+$", token)) {
             tipo = Token.CONSTANTE;
         } else if (token.equals("class")) {
@@ -832,7 +832,7 @@ public class Analisis {
 
     public static boolean EsBoolean(String cadena) {
 
-        if (cadena.contains("True") || cadena.contains("False")) {
+        if (cadena.contains("true") || cadena.contains("false")) {
             return true;
         }
         return false;
@@ -856,7 +856,7 @@ public class Analisis {
             resultado = "char";
         }
 
-        if (cadena.contains("True") || cadena.contains("False")) {
+        if (cadena.contains("true") || cadena.contains("false")) {
             resultado = "boolean";
         }
 
