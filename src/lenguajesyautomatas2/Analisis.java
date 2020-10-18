@@ -256,10 +256,21 @@ public class Analisis {
                                     impresion.add("Error sintactico en la linea " + to.getLinea() + " se esperaba una constante");
                                     
                                 }
-                                if(Siguiente1Tipo == Token.CONSTANTE){
+                                if(Siguiente1Tipo == Token.CONSTANTE && Anterior2Tipo == Token.TIPO_DATO){
                                     if(!coincideTipoConstante(Anterior2Valor, Siguiente1Valor)){
                                         banderaErroresSemanticos = true;
                                         impresion.add("Error semantico en la linea " + to.getLinea() + ", esta asignando un valor invalido");
+                                    }
+                                }
+                                if(Siguiente1Tipo == Token.IDENTIFICADOR){
+                                    if(!existeSimbolo(Siguiente1Valor)){
+                                        banderaErroresSemanticos = true;
+                                        impresion.add("Error semantico en la linea " + to.getLinea() + ", esta asignando un identificador no definido");
+                                    }else{
+                                        if(!elSimboloEstaInicializado(Siguiente1Valor)){
+                                            banderaErroresSemanticos = true;
+                                            impresion.add("Error semantico en la linea " + to.getLinea() + ", esta asignando un identificador no definido");
+                                        }
                                     }
                                 }
                             }
@@ -271,7 +282,7 @@ public class Analisis {
                             try {
 
                                 if (Anterior2Tipo == Token.TIPO_DATO && Anterior1Tipo == Token.IDENTIFICADOR) {
-                                    tablasimbolos.add(new TabladeSimbolos(Anterior1Valor, "", Anterior2Valor, "Global", to.getLinea()));
+                                    tablasimbolos.add(new TabladeSimbolos(Anterior1Valor, " ", Anterior2Valor, "Global", to.getLinea()));
 
                                 } //VALIDAR LAS VARIABLES YA DECLARADAS
                                 else if (Anterior4Tipo == Token.TIPO_DATO
@@ -945,6 +956,29 @@ public class Analisis {
             case "char":    res = EsChar(Siguiente1Valor);          break;
             case "boolean": res = EsBoolean(Siguiente1Valor);       break;
             case "float":   res = Esfloat(Siguiente1Valor);         break;
+        }
+        return res;
+    }
+
+    private boolean existeSimbolo(String Siguiente1Valor) {
+        boolean res = false;
+        for(int i = 0; i < tablasimbolos.size(); i++){
+            if(tablasimbolos.get(i).nombre.equals(Siguiente1Valor)){
+                res = true;
+                break;
+            }
+        }
+        return res;
+    }
+
+    private boolean elSimboloEstaInicializado(String Siguiente1Valor) {
+        boolean res = false, encontrado = false;
+        for(int i = 0; i < tablasimbolos.size(); i++){
+            encontrado = tablasimbolos.get(i).nombre.equals(Siguiente1Valor);
+            if(encontrado && !tablasimbolos.get(i).valor.equals(" ")){
+                res = true;
+                break;
+            }
         }
         return res;
     }
