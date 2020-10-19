@@ -33,6 +33,7 @@ public class Analisis {
     int Anterior5Tipo;
     String Siguiente1Valor;
     String Siguiente2Valor;
+    int Siguiente2Tipo;
     int Siguiente1Tipo;
     String operation = "";
 
@@ -165,6 +166,7 @@ public class Analisis {
                 Siguiente1Valor = nodo.siguiente.dato.getValor();
                 Siguiente1Tipo = nodo.siguiente.dato.getTipo();
                 Siguiente2Valor = nodo.siguiente.siguiente.dato.getValor();
+                Siguiente2Tipo = nodo.siguiente.siguiente.dato.getTipo();
 
             } catch (Exception e) {
                 e.getMessage();
@@ -248,6 +250,33 @@ public class Analisis {
                             }
                         } // verificar la asignacion
                         else if (to.getValor().equals("=")) {
+                            
+                            if( (Anterior2Tipo == Token.TIPO_DATO) && (Siguiente2Tipo == Token.OPERADOR_ARITMETICO) ){
+                                
+                                NodoDoble<Token> aux = nodo.siguiente;
+                                Token auxDato = aux.dato;
+                                
+                                while(to.getLinea() == auxDato.getLinea()){
+                                    switch(auxDato.getTipo()){
+                                        case Token.OPERADOR_ARITMETICO: 
+                                            break;
+                                        case Token.IDENTIFICADOR:
+                                            if(!TipoCadena(obtenerValorDeIdentificador(auxDato.getValor())).equals(Anterior2Valor)){
+                                                banderaErroresSemanticos = true;
+                                                impresion.add("Error semantico en la linea " + to.getLinea() + ", esta asignando tipos de dato distintos (" + Anterior2Valor + ", " + TipoCadena(obtenerValorDeIdentificador(auxDato.getValor())) + ")");
+                                            }
+                                            break;
+                                        case Token.CONSTANTE:
+                                            if(!TipoCadena(auxDato.getValor()).equals(Anterior2Valor)){
+                                                banderaErroresSemanticos = true;
+                                                impresion.add("Error semantico en la linea " + to.getLinea() + ", esta asignando tipos de dato distintos (" + Anterior2Valor + ", " + TipoCadena(obtenerValorDeIdentificador(auxDato.getValor())) + ")");
+                                            }
+                                            break;
+                                    }
+                                    aux = aux.siguiente;
+                                    auxDato = aux.dato;
+                                }
+                            }
 
                             if (Anterior1Tipo == Token.IDENTIFICADOR) {
                                 if (Siguiente1Tipo != Token.CONSTANTE && !Siguiente1Valor.contains("(") && Siguiente1Tipo != Token.IDENTIFICADOR) {
@@ -307,22 +336,27 @@ public class Analisis {
                                         && Anterior3Tipo == Token.OPERADOR_ARITMETICO
                                         && Anterior2Tipo == Token.CONSTANTE
                                         && Anterior1Valor.contains(")"))
-                                        || (Anterior4Tipo == Token.CONSTANTE
-                                        && Anterior3Tipo == Token.SIMBOLO
-                                        && Anterior2Tipo == Token.OPERADOR_ARITMETICO
-                                        && Anterior1Tipo == Token.CONSTANTE)
-                                        || (Anterior3Tipo == Token.CONSTANTE
-                                        && Anterior2Tipo == Token.OPERADOR_ARITMETICO
-                                        && Anterior1Tipo == Token.CONSTANTE)
-                                        || (Anterior3Tipo == Token.IDENTIFICADOR
-                                        && Anterior2Tipo == Token.OPERADOR_ARITMETICO
-                                        && Anterior1Tipo == Token.IDENTIFICADOR)
-                                        || (Anterior3Tipo == Token.IDENTIFICADOR
-                                        && Anterior2Tipo == Token.OPERADOR_ARITMETICO
-                                        && Anterior1Tipo == Token.CONSTANTE)
-                                        || (Anterior3Tipo == Token.CONSTANTE
-                                        && Anterior2Tipo == Token.OPERADOR_ARITMETICO
-                                        && Anterior1Tipo == Token.IDENTIFICADOR)) {
+                                            || (
+                                            Anterior4Tipo == Token.CONSTANTE
+                                            && Anterior3Tipo == Token.SIMBOLO
+                                            && Anterior2Tipo == Token.OPERADOR_ARITMETICO
+                                            && Anterior1Tipo == Token.CONSTANTE)
+                                            || (
+                                            Anterior3Tipo == Token.CONSTANTE
+                                            && Anterior2Tipo == Token.OPERADOR_ARITMETICO
+                                            && Anterior1Tipo == Token.CONSTANTE)
+                                        || (
+                                            Anterior3Tipo == Token.IDENTIFICADOR
+                                            && Anterior2Tipo == Token.OPERADOR_ARITMETICO
+                                            && Anterior1Tipo == Token.IDENTIFICADOR)
+                                        || (
+                                            Anterior3Tipo == Token.IDENTIFICADOR
+                                            && Anterior2Tipo == Token.OPERADOR_ARITMETICO
+                                            && Anterior1Tipo == Token.CONSTANTE)
+                                        || (
+                                            Anterior3Tipo == Token.CONSTANTE
+                                            && Anterior2Tipo == Token.OPERADOR_ARITMETICO
+                                            && Anterior1Tipo == Token.IDENTIFICADOR)) {
 
                                     NodoDoble<Token> nodoaux = nodo;
                                     NodoDoble<Token> nodoaux2 = nodo;
@@ -982,5 +1016,27 @@ public class Analisis {
         }
         return res;
     }
-
+    private int variableYaDeclarada(int linea, String identificador) {
+        int res = -1;
+        TabladeSimbolos aux;
+        for(int i = 0; i < tablasimbolos.size(); i++){
+            aux = tablasimbolos.get(i);
+            if(aux.getRenglon() > linea)
+                break;
+            if(aux.getValor().equals(identificador)){
+                res = aux.getRenglon();
+                break;
+            }
+        }
+        return res;
+    }
+    private String obtenerValorDeIdentificador(String identificador){
+        String res = " ";
+        for(int i = 0; i < tablasimbolos.size(); i++){
+            if(tablasimbolos.get(i).nombre.equals(identificador)){
+                res = tablasimbolos.get(i).valor;
+            }
+        }
+        return res;
+    }
 }
